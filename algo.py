@@ -2,6 +2,10 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
 import cv2
 
 # Load the dataset
@@ -151,3 +155,26 @@ while True:
 # Release the video capture device and destroy all windows
 video_capture.release()
 cv2.destroyAllWindows()
+
+# Load the medical data
+data = pd.read_csv('path_to_medical_data.csv')
+
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(data['text'], data['cause_of_death'], test_size=0.2, random_state=42)
+
+# Create a TfidfVectorizer object
+vectorizer = TfidfVectorizer(max_features=10000)
+
+# Fit the vectorizer to the training data and transform the training and testing sets
+X_train_vect = vectorizer.fit_transform(X_train)
+X_test_vect = vectorizer.transform(X_test)
+
+# Train an SVM model on the training data
+svm = SVC(kernel='linear')
+svm.fit(X_train_vect, y_train)
+
+# Predict the cause of death on the testing data
+y_pred = svm.predict(X_test_vect)
+
+# Print the classification report
+print(classification_report(y_test, y_pred))
